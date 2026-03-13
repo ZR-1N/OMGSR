@@ -55,7 +55,7 @@ def opt_parse(opt_path):
     return opt
 
 class RealESRGAN_degradation(object):
-    def __init__(self, resolution=512, opt_name='params_realesrgan.yml', device='cpu'):
+    def __init__(self, resolution=512, opt_name='params_realesrgan.yml', device='cpu', scale_factor=None):
         opt_path = f'{cur_path}/{opt_name}'
         self.opt = opt_parse(opt_path)
         self.device = device #torch.device('cpu')
@@ -86,14 +86,19 @@ class RealESRGAN_degradation(object):
             self.pulse_tensor[10, 10] = 1
             self.kernel_max = 21
             self.kernel_mid = 13
-            self.sf = 4
+            default_sf = 4
         else:
             self.kernel_range = [2 * v + 1 for v in range(5, 21)]  # kernel size ranges from 11 to 41
             self.pulse_tensor = torch.zeros(41, 41).float()  # convolving with pulse tensor brings no blurry effect
             self.pulse_tensor[20, 20] = 1
             self.kernel_max = 41
             self.kernel_mid = 25
-            self.sf = 8
+            default_sf = 8
+
+        # Keep backward-compatible defaults but allow explicit control (e.g., x2 for 128->256 training).
+        self.sf = default_sf if scale_factor is None else int(scale_factor)
+        if self.sf <= 0:
+            raise ValueError(f"Invalid scale_factor={scale_factor}. Expected a positive integer.")
         # print(self.kernel_range)
         self.jpeger = DiffJPEG(differentiable=False).to(self.device)
         self.usm_shaper = USMSharp().to(self.device)
