@@ -307,12 +307,7 @@ def main():
         eps=args.adam_epsilon,
     )
 
-    degradation_scale_factor = getattr(args, "degradation_scale_factor", None)
-    train_dataset = PairedDataset(
-        args.dataset_txt_or_dir_paths,
-        args.resolution,
-        degradation_scale_factor=degradation_scale_factor,
-    )
+    train_dataset = PairedDataset(args.dataset_txt_or_dir_paths, args.resolution)
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset,
         batch_size=args.train_batch_size,

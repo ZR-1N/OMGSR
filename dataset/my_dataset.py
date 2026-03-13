@@ -11,14 +11,10 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from dataset.realesrgan import RealESRGAN_degradation
 
 class PairedDataset(torch.utils.data.Dataset):
-    def __init__(self, dataset_txt_or_dir_paths, resolution, degradation_scale_factor=None):
+    def __init__(self, dataset_txt_or_dir_paths, resolution):
         super().__init__()
         self.resolution = resolution
-        self.degradation = RealESRGAN_degradation(
-            device='cpu',
-            resolution=resolution,
-            scale_factor=degradation_scale_factor,
-        )
+        self.degradation = RealESRGAN_degradation(device='cpu', resolution=resolution)
         self.crop_preproc = transforms.Compose([
             transforms.RandomCrop(
                 (resolution, resolution), 
