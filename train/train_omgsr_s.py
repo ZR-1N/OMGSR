@@ -119,7 +119,7 @@ def parse_args():
     parser.add_argument(
         "--config",
         type=str,
-        default="./configs/omgsr_s_512.yml",
+        default="./configs/omgsr_s_256.yml",
         help="path to config",
     )
     args = parser.parse_args()
