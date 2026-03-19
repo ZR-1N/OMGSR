@@ -15,8 +15,8 @@ lambda_L1: 0.5
 lambda_GAN: 0.5
 mid_timestep: 273  
 
-output_dir: ./omgsr_trainings/omgsr_s_512
-resolution: 512
+output_dir: ./omgsr_trainings/rgb_same_version
+resolution: 256
 train_batch_size: 1
 max_train_steps: 6000
 checkpointing_steps: 1000
