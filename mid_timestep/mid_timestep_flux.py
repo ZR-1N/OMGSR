@@ -168,7 +168,7 @@ def main():
 def parse_args():
     parser = argparse.ArgumentParser(description="Find optimal timestep for diffusion model")
     
-    parser.add_argument("--dataset_txt_or_dir_paths", type=str, nargs='+', help="List of dataset paths or txt files containing paths")
+    parser.add_argument("--dataset_txt_or_dir_paths", type=str, nargs='+', help="List of dataset paths or txt files containing paths (multiple allowed)")
     parser.add_argument("--flux_path", default="black-forest-labs/FLUX.1-dev",
                        help="Path to FLUX model")
     parser.add_argument("--resolution", type=int, default=1024,
