@@ -48,6 +48,8 @@ from diffusers.utils.import_utils import is_xformers_available
 from peft import LoraConfig, PeftModel
 import copy
 
+import torch.nn.functional as F
+
 warnings.filterwarnings("ignore")
 
 logger = get_logger(__name__)
@@ -462,7 +464,9 @@ def main():
                 loss_L1 = F.l1_loss(pred_img, hq_img, reduction="mean") * args.lambda_L1
 
                 # Generator Loss (SD)
-                loss_G = net_disc(pred_img, for_G=True) * args.lambda_GAN
+                #loss_G = net_disc(pred_img, for_G=True) * args.lambda_GAN
+                pred_img_512 = F.interpolate(pred_img, size=(512, 512), mode='bilinear', align_corners=False)
+                loss_G = net_disc(pred_img_512, for_G=True) * args.lambda_GAN
                 
                 total_G_loss = loss_LRR + loss_Dv3D + loss_L1 + loss_G
 
@@ -474,12 +478,24 @@ def main():
                 lr_scheduler_sr.step()
                 optimizer_sr.zero_grad()
                 
-                fake_img = pred_img.detach()
+                #fake_img = pred_img.detach()
                 # Fake images
-                loss_D_fake = net_disc(fake_img, for_real=False) * args.lambda_GAN 
+                #loss_D_fake = net_disc(fake_img, for_real=False) * args.lambda_GAN 
                 # Real images
-                loss_D_real = net_disc(hq_img, for_real=True) * args.lambda_GAN 
+                #loss_D_real = net_disc(hq_img, for_real=True) * args.lambda_GAN 
           
+                fake_img = pred_img.detach()
+                
+                # ====== 新增：将假图和真图都插值放大到 512 ======
+                fake_img_512 = F.interpolate(fake_img, size=(512, 512), mode='bilinear', align_corners=False)
+                hq_img_512 = F.interpolate(hq_img, size=(512, 512), mode='bilinear', align_corners=False)
+                # =================================================
+
+                # Fake images (喂入放大后的假图)
+                loss_D_fake = net_disc(fake_img_512, for_real=False) * args.lambda_GAN 
+                # Real images (喂入放大后的真图)
+                loss_D_real = net_disc(hq_img_512, for_real=True) * args.lambda_GAN
+
                 total_D_loss = loss_D_real + loss_D_fake 
 
                 accelerator.backward(total_D_loss)

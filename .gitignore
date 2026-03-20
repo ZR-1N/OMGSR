@@ -2,4 +2,6 @@
 __pycache__/
 stabilityai/
 adapters/
-datasets/
+dataset/
+omgsr_trainings/
+rgb_same_output/

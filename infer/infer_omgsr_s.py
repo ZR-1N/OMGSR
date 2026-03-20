@@ -124,7 +124,7 @@ if __name__ == "__main__":
     # Optional arguments with defaults
     parser.add_argument("--device", type=str, default="cuda:0",
                         help="Inference device")
-    parser.add_argument("--process_size", type=int, default=512,
+    parser.add_argument("--process_size", type=int, default=256,
                         help="Processing size for the model")
     parser.add_argument("--upscale", type=int, default=4,
                         help="Upscaling factor")
@@ -137,7 +137,7 @@ if __name__ == "__main__":
     parser.add_argument("--prompt", type=str, nargs="+",
                         default="",
                         help="Prompt for text conditioning (can specify multiple)")
-    parser.add_argument("--mid_timestep", type=int, default=273,
+    parser.add_argument("--mid_timestep", type=int, default=254,
                         help="Mid timestep for generation")
     args = parser.parse_args()
     
