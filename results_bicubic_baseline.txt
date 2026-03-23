@@ -1,0 +1,4 @@
+
+===========================
+Bicubic Baseline | PSNR: 18.5419 | SSIM: 0.2127
+Total Images: 19440

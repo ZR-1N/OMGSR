@@ -5,3 +5,7 @@ adapters/
 dataset/
 omgsr_trainings/
 rgb_same_output/
+rgb_same_output_addSSIM/
+infer_results/
+*.log
+train.log

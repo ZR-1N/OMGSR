@@ -40,7 +40,9 @@ from diffusers.training_utils import (
 )
 from diffusers.utils.torch_utils import is_compiled_module
 import torch.nn.functional as F
+from pytorch_msssim import ssim
 import warnings
+
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 from dataset.my_dataset import PairedDataset
@@ -48,7 +50,7 @@ from diffusers.utils.import_utils import is_xformers_available
 from peft import LoraConfig, PeftModel
 import copy
 
-import torch.nn.functional as F
+
 
 warnings.filterwarnings("ignore")
 
@@ -463,12 +465,21 @@ def main():
                 # L1 Loss
                 loss_L1 = F.l1_loss(pred_img, hq_img, reduction="mean") * args.lambda_L1
 
+                # SSIM Loss
+                pred_img_01 = (pred_img + 1.0) / 2.0
+                hq_img_01 = (hq_img + 1.0) / 2.0
+                # data_range 设为 1.0，因为输入现在是 0 到 1
+                ssim_val = ssim(pred_img_01, hq_img_01, data_range=1.0, size_average=True)
+                # 如果 config 里没写 lambda_SSIM，默认给 2.0
+                lambda_SSIM = getattr(args, 'lambda_SSIM', 2.0)
+                loss_SSIM = (1.0 - ssim_val) * lambda_SSIM
+
                 # Generator Loss (SD)
                 #loss_G = net_disc(pred_img, for_G=True) * args.lambda_GAN
                 pred_img_512 = F.interpolate(pred_img, size=(512, 512), mode='bilinear', align_corners=False)
                 loss_G = net_disc(pred_img_512, for_G=True) * args.lambda_GAN
                 
-                total_G_loss = loss_LRR + loss_Dv3D + loss_L1 + loss_G
+                total_G_loss = loss_LRR + loss_Dv3D + loss_L1 + loss_G+loss_SSIM
 
                 accelerator.backward(total_G_loss)
                 if accelerator.sync_gradients:
@@ -539,6 +550,7 @@ def main():
                 "loss_D_real": loss_D_real.detach().item(),
                 "loss_Dv3D": loss_Dv3D.detach().item(),
                 "loss_L1": loss_L1.detach().item(),
+                "loss_SSIM": loss_SSIM.detach().item(), # <--- 新增这一行
                 "lr": lr_scheduler_sr.get_last_lr()[0],
             }
             progress_bar.set_postfix(**logs)

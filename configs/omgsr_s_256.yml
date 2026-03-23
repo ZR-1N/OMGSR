@@ -1,5 +1,5 @@
-model: omgsr_s_512
-seed: 123
+model: omgsr_s_256
+seed: 523
 sd_path: stabilityai/stable-diffusion-2-1-base
 fixed_prompt: ""   # empty prompt is ok!
 fixed_prompt_path: null
@@ -10,23 +10,24 @@ unet_lora_rank: 32
 
 dinov3_convnext_size: large      # tiny, small, base, large
 lambda_LRR: 5
-lambda_Dv3D: 5
-lambda_L1: 0.5
-lambda_GAN: 0.5
+lambda_Dv3D: 0.5 #reduce natural image constrain
+lambda_L1: 5.0
+lambda_GAN: 0.05
+lambda_SSIM: 2.0
 mid_timestep: 254 # modify mid_timestep from 273 to 254(CCPs) 
 
-output_dir: ./omgsr_trainings/rgb_same_version
+output_dir: ./omgsr_trainings/rgb_same_version_finetuned
 resolution: 256
-train_batch_size: 1 # later add up to 4 or 8, may stablize GAN training
-max_train_steps: 6000
+train_batch_size: 4 # later add up to 4 or 8, may stablize GAN training
+max_train_steps: 50000
 checkpointing_steps: 1000
 save_img_steps: 100
 resume_from_checkpoint: null
-gradient_accumulation_steps: 4 #later cut down to 1, the same as train_batch_size
+gradient_accumulation_steps: 1 #later cut down to 1, the same as train_batch_size
 gradient_checkpointing: False
 enable_xformers_memory_efficient_attention: False
 learning_rate: 5e-5
-lr_scheduler: constant
+lr_scheduler: cosine
 lr_warmup_steps: 500
 lr_num_cycles: 1
 lr_power: 1.0

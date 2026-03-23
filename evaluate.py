@@ -7,9 +7,9 @@ from skimage.metrics import structural_similarity as compare_ssim
 
 # =======================
 # 配置路径
-SR_DIR = "rgb_same_output"
+SR_DIR = "infer_results/rgb_same_output_v3"
 GT_DIR = "dataset/train_rgb/CCPs/HQ"
-SAVE_FILE = "results_bio_standard.txt"
+SAVE_FILE = "results_bio_standard_v3.txt"
 SCALE = 2  # 如果生成的图像边缘有伪影，设为2裁掉边缘；否则设为0
 # =======================
 
