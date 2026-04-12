@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # ========= 配置 =========
-log_file = "train_v3.log"   # 改成你的路径
-save_dir = "loss_plots_v3"
+log_file = "train_ERedge.log"   # 改成你的路径
+save_dir = "loss_plots_ERedge"
 os.makedirs(save_dir, exist_ok=True)
 
 loss_keys = [

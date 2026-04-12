@@ -9,10 +9,10 @@ from tqdm import tqdm
 # =======================
 # 路径配置区
 # =======================
-GT_DIR = "dataset/test/CCPs/GT"          # 高清 TIF GT
-LR_DIR = "dataset/test/CCPs/LR"          # 宽场 TIF LR
-SR_DIR = "infer_results/rgb_test_zero"             # 你的模型输出 PNG 文件夹 (请确保这里是你6000步或最新的输出文件夹)
-SAVE_PLOT = "FRC/frc_comparison_curve_zero.png"
+GT_DIR = "dataset/test/ER/GT"          # 高清 TIF GT
+LR_DIR = "dataset/test/ER/LR"          # 宽场 TIF LR
+SR_DIR = "infer_results/SwinIRER"             # 你的模型输出 PNG 文件夹 (请确保这里是你6000步或最新的输出文件夹)
+SAVE_PLOT = "FRC/SwinIRER.png"
 SCALE = 2
 
 # FRC 计算阈值 (冷冻电镜和超分领域常用的 1/7 阈值)

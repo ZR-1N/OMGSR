@@ -130,6 +130,41 @@ def parse_args():
 
     return args.config
 
+def edge_aware_l1_loss(pred, target, bg_weight=0.1, edge_weight=5.0):
+    """
+    专为极度稀疏结构(如 ER)设计的边缘感知 L1 损失。
+    pred, target: [-1, 1] 范围的张量, 形状 [B, C, H, W]
+    bg_weight: 背景区域的基础惩罚权重 (不建议设为0，防止背景产生彩色幻觉噪点)
+    edge_weight: 前景边缘区域的放大权重
+    """
+    # 1. 基础 L1 误差计算
+    l1_loss_pixel = torch.abs(pred - target)
+    
+    # 2. 将 target 转换到 [0, 1] 范围，以获得更稳定的边缘响应
+    target_01 = (target + 1.0) / 2.0
+    
+    # 3. 定义 Sobel 算子并移至同一设备
+    sobel_x = torch.tensor([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], dtype=torch.float32, device=target.device).view(1, 1, 3, 3)
+    sobel_y = torch.tensor([[-1, -2, -1], [0, 0, 0], [1, 2, 1]], dtype=torch.float32, device=target.device).view(1, 1, 3, 3)
+    
+    # 4. 处理 RGB 多通道：求均值变单通道，以便统一提取结构边缘
+    target_gray = target_01.mean(dim=1, keepdim=True)
+    
+    # 5. 动态提取 GT 边缘
+    edge_x = F.conv2d(target_gray, sobel_x, padding=1)
+    edge_y = F.conv2d(target_gray, sobel_y, padding=1)
+    edge_map = torch.sqrt(edge_x**2 + edge_y**2 + 1e-6).detach()
+    
+    # 归一化边缘图到 [0, 1] 区间
+    edge_map = edge_map / (edge_map.max() + 1e-8)
+    
+    # 6. 生成 Mask: 背景常数 + 边缘图 * 放大系数
+    # Mask 形状会自动广播以匹配 l1_loss_pixel 的通道数
+    mask = (bg_weight + edge_map * edge_weight).detach()
+    
+    # 7. 应用掩码并返回均值
+    weighted_loss = l1_loss_pixel * mask
+    return weighted_loss.mean()
 
 def main():
     args = OmegaConf.load(parse_args())
@@ -463,7 +498,10 @@ def main():
                 loss_Dv3D = net_dv3d(pred_img, hq_img) * args.lambda_Dv3D
 
                 # L1 Loss
-                loss_L1 = F.l1_loss(pred_img, hq_img, reduction="mean") * args.lambda_L1
+                #loss_L1 = F.l1_loss(pred_img, hq_img, reduction="mean") * args.lambda_L1
+
+                # Edge-Aware L1 Loss (增强 ER 管状网络边缘)
+                loss_L1 = edge_aware_l1_loss(pred_img, hq_img, bg_weight=0.1, edge_weight=5.0) * args.lambda_L1
 
                 # SSIM Loss
                 pred_img_01 = (pred_img + 1.0) / 2.0

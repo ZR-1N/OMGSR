@@ -14,10 +14,10 @@ from tqdm import tqdm
 # =======================
 # 路径配置区
 # =======================
-GT_DIR = "dataset/test/CCPs/GT"          # 高清 TIF GT 文件夹
-LR_DIR = "dataset/test/CCPs/LR"          # 宽场 TIF LR 文件夹
-SR_DIR = "infer_results/rgb_test_zero"             # 你的模型输出 PNG 文件夹
-SAVE_FILE = "results_comparison_final_zero.txt"
+GT_DIR = "dataset/test/ER/GT"          # 高清 TIF GT 文件夹
+LR_DIR = "dataset/test/ER/LR"          # 宽场 TIF LR 文件夹
+SR_DIR = "infer_results/SwinIRER"             # 你的模型输出 PNG 文件夹
+SAVE_FILE = "results_SwinIRER.txt"
 SCALE = 2                                # 边缘裁切像素
 
 # =======================

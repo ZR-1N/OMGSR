@@ -5,7 +5,7 @@ from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 from skimage.metrics import structural_similarity as compare_ssim
 from tqdm import tqdm
 
-NPZ_PATH = 'dataset/train/CCPs/my_training_data.npz'
+NPZ_PATH = 'dataset/train/ER/my_training_data.npz'
 
 def linear_transform(img_true, img_test):
     # 【升级 1】内部强制使用 float64 双精度运算，彻底杜绝平方溢出
